@@ -322,7 +322,7 @@ export default function AdminDashboard() {
     return { sortedVariants, selectedVariant };
   };
 
-  // Store automation: Open at 8:35 AM, Close at 9:35 PM
+  // Store automation: Open at 8:35 AM, Close at 9:35 PM (IST - Testing)
   useEffect(() => {
     const scheduleStoreUpdates = () => {
       const now = new Date();
@@ -350,7 +350,7 @@ export default function AdminDashboard() {
         msUntilOpen = targetOpen.getTime() - now.getTime();
       }
 
-      // Calculate time until next close (9:35 PM)
+      // Calculate time until next close (8:05 PM)
       let msUntilClose = 0;
       if (currentHour < closeHour || (currentHour === closeHour && currentMinute < closeMinute)) {
         // Today's close time hasn't passed yet
@@ -368,29 +368,43 @@ export default function AdminDashboard() {
       // Schedule open action
       const openTimeout = setTimeout(async () => {
         console.log('Auto-opening store at 8:35 AM');
-        await handleStoreStatusToggle(true);
-        // Reschedule for next day
-        scheduleStoreUpdates();
+        try {
+          if (!storeStatusId) return;
+          await supabase
+            .from('store_status')
+            .update({ is_open: true, updated_by: profile?.id ?? null })
+            .eq('id', storeStatusId);
+        } catch (error) {
+          console.error('Failed to auto-open store:', error);
+        }
       }, msUntilOpen);
 
       // Schedule close action
       const closeTimeout = setTimeout(async () => {
         console.log('Auto-closing store at 9:35 PM');
-        await handleStoreStatusToggle(false);
-        // Reschedule for next day
-        scheduleStoreUpdates();
+        try {
+          if (!storeStatusId) return;
+          await supabase
+            .from('store_status')
+            .update({ is_open: false, updated_by: profile?.id ?? null })
+            .eq('id', storeStatusId);
+        } catch (error) {
+          console.error('Failed to auto-close store:', error);
+        }
       }, msUntilClose);
 
       return { openTimeout, closeTimeout };
     };
 
-    const timeouts = scheduleStoreUpdates();
+    if (storeStatusId) {
+      const timeouts = scheduleStoreUpdates();
 
-    return () => {
-      clearTimeout(timeouts.openTimeout);
-      clearTimeout(timeouts.closeTimeout);
-    };
-  }, [storeStatus, storeStatusId]);
+      return () => {
+        clearTimeout(timeouts.openTimeout);
+        clearTimeout(timeouts.closeTimeout);
+      };
+    }
+  }, [storeStatusId, profile?.id]);
 
   useEffect(() => {
     fetchItems();
