@@ -350,7 +350,7 @@ export default function AdminDashboard() {
         msUntilOpen = targetOpen.getTime() - now.getTime();
       }
 
-      // Calculate time until next close (8:05 PM)
+      // Calculate time until next close (9:35 PM)
       let msUntilClose = 0;
       if (currentHour < closeHour || (currentHour === closeHour && currentMinute < closeMinute)) {
         // Today's close time hasn't passed yet
