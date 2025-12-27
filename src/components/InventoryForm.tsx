@@ -196,6 +196,15 @@ export default function InventoryForm({
     };
   }, [categoryDropdownOpen]);
 
+  // Helper function to convert string to Title Case
+  const toTitleCase = (str: string): string => {
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const onSubmit = async (data: InventoryFormData) => {
     try {
       setLoading(true);
@@ -206,9 +215,9 @@ export default function InventoryForm({
       const imageUrlValue = typeof data.image_url === 'string' ? data.image_url.trim() : '';
 
       const submitData = {
-        name: data.name,
+        name: toTitleCase(data.name.trim()),
         description: descriptionValue === '' ? null : descriptionValue,
-        category: categoryValue === '' ? null : categoryValue,
+        category: categoryValue === '' ? null : categoryValue.toLowerCase(),
         is_visible: data.is_visible,
         has_variants: data.has_variants,
         image_url: imageUrlValue === '' ? null : imageUrlValue,
@@ -291,11 +300,14 @@ export default function InventoryForm({
                     <div className="relative" ref={categoryFieldRef}>
                       <Input
                         placeholder="e.g., Sweets"
-                        {...field}
+                        name={field.name}
+                        ref={field.ref}
                         value={field.value ?? ''}
                         className="pr-9"
+                        autoComplete="off"
                         onChange={(event) => {
-                          field.onChange(event.target.value);
+                          const newValue = event.target.value.trim();
+                          field.onChange(newValue === '' ? null : event.target.value);
                           setCategoryDropdownOpen(true);
                         }}
                         onFocus={() => {
@@ -333,8 +345,8 @@ export default function InventoryForm({
                                 const lowercaseQuery = inputValue.toLowerCase();
                                 const filteredOptions = inputValue
                                   ? categoryOptions.filter((option) =>
-                                      option.toLowerCase().includes(lowercaseQuery)
-                                    )
+                                    option.toLowerCase().includes(lowercaseQuery)
+                                  )
                                   : categoryOptions;
                                 return (
                                   <>
@@ -432,7 +444,7 @@ export default function InventoryForm({
             <FormField
               control={form.control}
               name="sku"
-              render={({ field}) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>SKU</FormLabel>
                   <FormControl>

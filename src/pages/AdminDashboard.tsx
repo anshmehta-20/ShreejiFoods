@@ -89,16 +89,16 @@ const parseNumericValue = (value: string): number | null => {
 const parseWeightInGrams = (value: string): number | null => {
   const lowerValue = value.toLowerCase();
   const numMatch = lowerValue.match(/(\d+(?:\.\d+)?)/);
-  
+
   if (!numMatch) {
     return null;
   }
-  
+
   const num = Number.parseFloat(numMatch[1]);
   if (Number.isNaN(num)) {
     return null;
   }
-  
+
   // Convert to grams based on unit
   if (lowerValue.includes('kg')) {
     return num * 1000; // kg to grams
@@ -111,7 +111,7 @@ const parseWeightInGrams = (value: string): number | null => {
   } else if (lowerValue.includes('oz') || lowerValue.includes('ounce')) {
     return num * 28.3495; // ounces to grams
   }
-  
+
   // If no unit found, treat as the raw number
   return num;
 };
@@ -120,10 +120,10 @@ const sortVariants = (variants: ProductVariant[]) => {
   return [...variants].sort((a, b) => {
     // Check if this is a weight-based variant
     const isWeightVariant = a.variant_type === 'weight' || b.variant_type === 'weight';
-    
+
     let aValue: number | null;
     let bValue: number | null;
-    
+
     if (isWeightVariant) {
       // Use weight-aware parsing for weight variants
       aValue = parseWeightInGrams(a.variant_value);
@@ -576,13 +576,9 @@ export default function AdminDashboard() {
 
         const categoryList = (data ?? []) as CategoryOption[];
         setAvailableCategories(categoryList);
-        if (categoryList.length > 0) {
-          setSelectedCategoryId(categoryList[0].id);
-          setCategoryPickerSearch(categoryList[0].name);
-        } else {
-          setSelectedCategoryId('');
-          setCategoryPickerSearch('');
-        }
+        // Don't auto-select any category - user must choose explicitly
+        setSelectedCategoryId('');
+        setCategoryPickerSearch('');
       } catch (error: any) {
         toast({
           variant: 'destructive',
@@ -608,11 +604,12 @@ export default function AdminDashboard() {
       return;
     }
 
+    // Only clear selection if the selected category no longer exists
     const exists = availableCategories.some((category) => category.id === selectedCategoryId);
-    if (!exists) {
-      setSelectedCategoryId(availableCategories[0].id);
+    if (selectedCategoryId && !exists) {
+      setSelectedCategoryId('');
       if (!categoryPickerOpen) {
-        setCategoryPickerSearch(availableCategories[0].name);
+        setCategoryPickerSearch('');
       }
     }
   }, [availableCategories, selectedCategoryId, categoryPickerOpen]);
@@ -959,13 +956,12 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between gap-3">
                 <CardTitle className="text-3xl">
                   <span
-                    className={`transition-colors ${
-                      storeStatus === null
-                        ? 'text-foreground'
-                        : storeStatus
+                    className={`transition-colors ${storeStatus === null
+                      ? 'text-foreground'
+                      : storeStatus
                         ? 'text-emerald-500'
                         : 'text-destructive'
-                    }`}
+                      }`}
                   >
                     {storeStatus === null ? '—' : storeStatus ? 'Open' : 'Closed'}
                   </span>
@@ -1097,395 +1093,187 @@ export default function AdminDashboard() {
           <>
             {/* Desktop Table View */}
             <div className="hidden md:block rounded-md border border-border]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Item</TableHead>
-                        <TableHead className="text-center">Category</TableHead>
-                        <TableHead className="text-center">SKU</TableHead>
-                        <TableHead className="text-center">Variants</TableHead>
-                        <TableHead className="text-center">Price</TableHead>
-                        <TableHead className="text-center">Quantity</TableHead>
-                        <TableHead className="text-center">Visibility</TableHead>
-                        <TableHead className="text-center">Last Updated</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {filteredItems.map((item) => {
-                      const { sortedVariants, selectedVariant: activeVariant } = getVariantsForItem(item);
-                      const displayPrice = item.has_variants
-                        ? activeVariant?.price ?? null
-                        : item.price ?? null;
-                      const displayQuantity = item.has_variants
-                        ? activeVariant?.quantity ?? null
-                        : item.quantity ?? null;
-                      const lastUpdatedValue = item.has_variants
-                        ? activeVariant?.last_updated ?? null
-                        : item.last_updated;
-                      const skuLabel = item.has_variants
-                        ? activeVariant?.sku ?? null
-                        : item.sku ?? null;
-                      const variantMeta =
-                        item.has_variants && activeVariant
-                          ? `${activeVariant.variant_value} • ${VARIANT_TYPE_LABELS[activeVariant.variant_type]}`
-                          : null;
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Item</TableHead>
+                    <TableHead className="text-center">Category</TableHead>
+                    <TableHead className="text-center">SKU</TableHead>
+                    <TableHead className="text-center">Variants</TableHead>
+                    <TableHead className="text-center">Price</TableHead>
+                    <TableHead className="text-center">Quantity</TableHead>
+                    <TableHead className="text-center">Visibility</TableHead>
+                    <TableHead className="text-center">Last Updated</TableHead>
+                    <TableHead className="text-center">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredItems.map((item) => {
+                    const { sortedVariants, selectedVariant: activeVariant } = getVariantsForItem(item);
+                    const displayPrice = item.has_variants
+                      ? activeVariant?.price ?? null
+                      : item.price ?? null;
+                    const displayQuantity = item.has_variants
+                      ? activeVariant?.quantity ?? null
+                      : item.quantity ?? null;
+                    const lastUpdatedValue = item.has_variants
+                      ? activeVariant?.last_updated ?? null
+                      : item.last_updated;
+                    const skuLabel = item.has_variants
+                      ? activeVariant?.sku ?? null
+                      : item.sku ?? null;
+                    const variantMeta =
+                      item.has_variants && activeVariant
+                        ? `${activeVariant.variant_value} • ${VARIANT_TYPE_LABELS[activeVariant.variant_type]}`
+                        : null;
 
-                      return (
-                        <TableRow
-                          key={item.id}
-                          className={!item.is_visible ? 'bg-muted/40' : undefined}
-                        >
-                          <TableCell>
-                            <div className="flex flex-col gap-2">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-medium">{item.name}</span>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                {item.has_variants ? (
-                                  sortedVariants.length > 0 ? (
-                                    <Select
-                                      value={activeVariant?.id ?? sortedVariants[0].id}
-                                      onValueChange={(value) => handleVariantSelect(item.id, value)}
-                                      aria-label={`Select variant for ${item.name}`}
-                                    >
-                                      <SelectTrigger className="one-shadow h-7 min-w-[6rem] w-auto max-w-[10rem] rounded-[var(--radius)] border border-border text-xs hover:border-accent hover:bg-accent/50 hover:text-accent-foreground active:scale-[0.98] touch-manipulation">
-                                        <SelectValue placeholder="Variant" />
-                                      </SelectTrigger>
-                                      <SelectContent className="touch-manipulation">
-                                        {sortedVariants.map((variant) => {
-                                          const variantLabel = VARIANT_TYPE_LABELS[variant.variant_type]
-                                            ? `${variant.variant_value} • ${VARIANT_TYPE_LABELS[variant.variant_type]}`
-                                            : variant.variant_value;
+                    return (
+                      <TableRow
+                        key={item.id}
+                        className={!item.is_visible ? 'bg-muted/40' : undefined}
+                      >
+                        <TableCell>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-medium">{item.name}</span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {item.has_variants ? (
+                                sortedVariants.length > 0 ? (
+                                  <Select
+                                    value={activeVariant?.id ?? sortedVariants[0].id}
+                                    onValueChange={(value) => handleVariantSelect(item.id, value)}
+                                    aria-label={`Select variant for ${item.name}`}
+                                  >
+                                    <SelectTrigger className="one-shadow h-7 min-w-[6rem] w-auto max-w-[10rem] rounded-[var(--radius)] border border-border text-xs hover:border-accent hover:bg-accent/50 hover:text-accent-foreground active:scale-[0.98] touch-manipulation">
+                                      <SelectValue placeholder="Variant" />
+                                    </SelectTrigger>
+                                    <SelectContent className="touch-manipulation">
+                                      {sortedVariants.map((variant) => {
+                                        const variantLabel = VARIANT_TYPE_LABELS[variant.variant_type]
+                                          ? `${variant.variant_value} • ${VARIANT_TYPE_LABELS[variant.variant_type]}`
+                                          : variant.variant_value;
 
-                                          return (
-                                            <SelectItem key={variant.id} value={variant.id} className="touch-manipulation cursor-pointer">
-                                              {variantLabel}
-                                            </SelectItem>
-                                          );
-                                        })}
-                                      </SelectContent>
-                                    </Select>
-                                  ) : (
-                                    <Badge
-                                      variant="outline"
-                                      className="one-shadow text-xs font-medium rounded-[var(--radius)]"
-                                    >
-                                      No variants yet
-                                    </Badge>
-                                  )
+                                        return (
+                                          <SelectItem key={variant.id} value={variant.id} className="touch-manipulation cursor-pointer">
+                                            {variantLabel}
+                                          </SelectItem>
+                                        );
+                                      })}
+                                    </SelectContent>
+                                  </Select>
                                 ) : (
                                   <Badge
                                     variant="outline"
                                     className="one-shadow text-xs font-medium rounded-[var(--radius)]"
                                   >
-                                    No Variant
+                                    No variants yet
                                   </Badge>
-                                )}
-                              </div>
-                              {item.description && (
-                                <div className="text-xs text-muted-foreground">
-                                  {item.description}
-                                </div>
+                                )
+                              ) : (
+                                <Badge
+                                  variant="outline"
+                                  className="one-shadow text-xs font-medium rounded-[var(--radius)]"
+                                >
+                                  No Variant
+                                </Badge>
                               )}
                             </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {item.category ? (
-                              <Badge variant="secondary">{item.category}</Badge>
-                            ) : (
-                              <span className="text-muted-foreground text-sm">—</span>
+                            {item.description && (
+                              <div className="text-xs text-muted-foreground">
+                                {item.description}
+                              </div>
                             )}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {item.has_variants ? (
-                              sortedVariants.length > 0 && activeVariant ? (
-                                <div className="space-y-1">
-                                  {skuLabel ? (
-                                    <code className="text-xs bg-muted px-2 py-1 rounded">{skuLabel}</code>
-                                  ) : (
-                                    <span className="text-sm text-muted-foreground">No SKU</span>
-                                  )}
-                                  {variantMeta && (
-                                    <span className="block text-xs text-muted-foreground">{variantMeta}</span>
-                                  )}
-                                </div>
-                              ) : (
-                                <span className="text-muted-foreground text-sm">No variants yet</span>
-                              )
-                            ) : (
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {item.category ? (
+                            <Badge variant="secondary">{item.category}</Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {item.has_variants ? (
+                            sortedVariants.length > 0 && activeVariant ? (
                               <div className="space-y-1">
                                 {skuLabel ? (
                                   <code className="text-xs bg-muted px-2 py-1 rounded">{skuLabel}</code>
                                 ) : (
-                                  <span className="text-sm text-muted-foreground">SKU not set</span>
+                                  <span className="text-sm text-muted-foreground">No SKU</span>
+                                )}
+                                {variantMeta && (
+                                  <span className="block text-xs text-muted-foreground">{variantMeta}</span>
                                 )}
                               </div>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant="outline">
-                              {item.has_variants ? sortedVariants.length : '—'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {displayPrice !== null ? (
-                              <span className="font-medium">{formatCurrency(displayPrice)}</span>
                             ) : (
-                              <span className="text-muted-foreground text-sm">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              {displayQuantity !== null ? (
-                                <Badge variant={displayQuantity === 0 ? 'destructive' : 'default'}>
-                                  {displayQuantity}
-                                </Badge>
+                              <span className="text-muted-foreground text-sm">No variants yet</span>
+                            )
+                          ) : (
+                            <div className="space-y-1">
+                              {skuLabel ? (
+                                <code className="text-xs bg-muted px-2 py-1 rounded">{skuLabel}</code>
                               ) : (
-                                <Badge variant="outline">—</Badge>
+                                <span className="text-sm text-muted-foreground">SKU not set</span>
                               )}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                                onClick={() => openQuantityDialog(item, activeVariant)}
-                                title="Update quantity"
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </Button>
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center gap-2">
-                              <Switch
-                                size="sm"
-                                checked={item.is_visible}
-                                onCheckedChange={(checked) => handleVisibilityToggle(item, checked)}
-                                aria-label={`Toggle visibility for ${item.name}`}
-                              />
-                              <span className="text-sm text-muted-foreground">
-                                {item.is_visible ? 'Visible' : 'Hidden'}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center text-sm text-muted-foreground">
-                            {lastUpdatedValue ? formatVariantTimestamp(lastUpdatedValue) : '—'}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="w-full rounded-[var(--radius)] border-border sm:w-auto"
-                                >
-                                  Manage
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-56">
-                                <DropdownMenuLabel>Item</DropdownMenuLabel>
-                                <DropdownMenuItem onSelect={() => handleEdit(item)}>
-                                  Edit Item
-                                </DropdownMenuItem>
-                                {item.has_variants ? (
-                                  <>
-                                    <DropdownMenuItem onSelect={() => openVariantForm(item)}>
-                                      Add Variant
-                                    </DropdownMenuItem>
-                                    {sortedVariants.length > 0 && (
-                                      <>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuLabel>Variants</DropdownMenuLabel>
-                                        {sortedVariants.map((variant) => (
-                                          <DropdownMenuSub key={variant.id}>
-                                            <DropdownMenuSubTrigger>
-                                              {variant.variant_value}
-                                            </DropdownMenuSubTrigger>
-                                            <DropdownMenuSubContent>
-                                              <DropdownMenuItem
-                                                onSelect={() => openVariantForm(item, variant)}
-                                              >
-                                                Edit Variant
-                                              </DropdownMenuItem>
-                                              <DropdownMenuItem
-                                                className="text-destructive focus:text-destructive"
-                                                onSelect={() => openVariantDeleteDialog(item, variant)}
-                                              >
-                                                Delete Variant
-                                              </DropdownMenuItem>
-                                            </DropdownMenuSubContent>
-                                          </DropdownMenuSub>
-                                        ))}
-                                      </>
-                                    )}
-                                  </>
-                                ) : (
-                                  <DropdownMenuItem disabled className="opacity-75 cursor-not-allowed">
-                                    Enable variants from item settings
-                                  </DropdownMenuItem>
-                                )}
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  className="text-destructive focus:text-destructive"
-                                  onSelect={() => openDeleteDialog(item)}
-                                >
-                                  Delete Item
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Mobile Card View */}
-              <div className="grid gap-6 md:hidden">
-                {filteredItems.map((item) => {
-                  const { sortedVariants, selectedVariant: activeVariant } = getVariantsForItem(item);
-                  const isVariantBased = item.has_variants;
-                  const displayPrice = isVariantBased
-                    ? activeVariant?.price ?? null
-                    : item.price ?? null;
-                  const displayQuantity = isVariantBased
-                    ? activeVariant?.quantity ?? null
-                    : item.quantity ?? null;
-                  const lastUpdatedValue = isVariantBased
-                    ? activeVariant?.last_updated ?? null
-                    : item.last_updated;
-                  const skuLabel = isVariantBased
-                    ? activeVariant?.sku ?? null
-                    : item.sku ?? null;
-
-                  return (
-                    <Card
-                      key={item.id}
-                      className={`flex h-full flex-col hover:shadow-lg transition-shadow ${!item.is_visible ? 'bg-muted/40' : ''}`}
-                    >
-                      <CardHeader className="space-y-2 pb-4">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <CardTitle className="text-lg">{item.name}</CardTitle>
-                          {item.category && (
-                            <Badge variant="secondary" className="ml-auto">
-                              {item.category}
-                            </Badge>
                           )}
-                        </div>
-                        <div className="!mt-0 flex flex-wrap items-center gap-2">
-                          {isVariantBased && sortedVariants.length > 0 ? (
-                            <Select
-                              value={activeVariant?.id ?? sortedVariants[0].id}
-                              onValueChange={(value) => handleVariantSelect(item.id, value)}
-                              aria-label={`Select variant for ${item.name}`}
-                            >
-                              <SelectTrigger className="one-shadow h-7 min-w-[6rem] w-auto max-w-[12rem] rounded-[var(--radius)] border border-border text-xs hover:border-accent hover:bg-accent/50 hover:text-accent-foreground active:scale-[0.98] touch-manipulation">
-                                <SelectValue placeholder="Variant" />
-                              </SelectTrigger>
-                              <SelectContent className="touch-manipulation">
-                                {sortedVariants.map((variant) => (
-                                  <SelectItem key={variant.id} value={variant.id} className="touch-manipulation cursor-pointer">
-                                    {VARIANT_TYPE_LABELS[variant.variant_type]
-                                      ? `${variant.variant_value} • ${VARIANT_TYPE_LABELS[variant.variant_type]}`
-                                      : variant.variant_value}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          ) : isVariantBased ? (
-                            <Badge
-                              variant="outline"
-                              className="one-shadow text-xs font-medium rounded-[var(--radius)]"
-                            >
-                              No variants yet
-                            </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="outline">
+                            {item.has_variants ? sortedVariants.length : '—'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {displayPrice !== null ? (
+                            <span className="font-medium">{formatCurrency(displayPrice)}</span>
                           ) : (
-                            <Badge
-                              variant="outline"
-                              className="one-shadow text-xs font-medium rounded-[var(--radius)]"
+                            <span className="text-muted-foreground text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            {displayQuantity !== null ? (
+                              <Badge variant={displayQuantity === 0 ? 'destructive' : 'default'}>
+                                {displayQuantity}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline">—</Badge>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0"
+                              onClick={() => openQuantityDialog(item, activeVariant)}
+                              title="Update quantity"
                             >
-                              No Variant
-                            </Badge>
-                          )}
-                          {skuLabel ? (
-                            <code className="bg-muted px-2 py-1 rounded-[calc(var(--radius)*0.5)] text-xs text-muted-foreground ml-auto text-center min-w-[80px] inline-block">
-                              {skuLabel}
-                            </code>
-                          ) : (
-                            <span className="text-xs text-muted-foreground ml-auto text-center min-w-[80px] inline-block">SKU unavailable</span>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent className="flex flex-1 flex-col space-y-4 pb-4">
-                        {item.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {item.description}
-                          </p>
-                        )}
-
-                        <div className="mt-auto space-y-3 border-t border-border dark:border-[#080808] pt-2">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <p className="text-xs text-muted-foreground mb-1.5">Available Quantity</p>
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant={
-                                    displayQuantity !== null && displayQuantity === 0
-                                      ? 'destructive'
-                                      : 'default'
-                                  }
-                                  className="px-3 py-1"
-                                >
-                                  {displayQuantity ?? '—'}
-                                </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 w-7 p-0"
-                                  onClick={() => openQuantityDialog(item, activeVariant)}
-                                  title="Update quantity"
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </Button>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end">
-                              <p className="text-xs text-muted-foreground mb-1.5">Price</p>
-                              <p className="text-base font-semibold">
-                                {displayPrice !== null ? formatCurrency(displayPrice) : '—'}
-                              </p>
-                            </div>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
                           </div>
-                          <div className="text-xs text-muted-foreground pt-2 border-t border-border/50 dark:border-[#080808]/50">
-                            <span className="inline-block">Last Updated:</span>{' '}
-                            <span className="font-medium">
-                              {lastUpdatedValue ? formatVariantTimestamp(lastUpdatedValue) : '—'}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center gap-2">
+                            <Switch
+                              size="sm"
+                              checked={item.is_visible}
+                              onCheckedChange={(checked) => handleVisibilityToggle(item, checked)}
+                              aria-label={`Toggle visibility for ${item.name}`}
+                            />
+                            <span className="text-sm text-muted-foreground">
+                              {item.is_visible ? 'Visible' : 'Hidden'}
                             </span>
                           </div>
-                        </div>
-
-                        <div className="flex flex-col gap-3 border-t border-border dark:border-[#080808] pt-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Visibility</span>
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                size="sm"
-                                checked={item.is_visible}
-                                onCheckedChange={(checked) => handleVisibilityToggle(item, checked)}
-                                aria-label={`Toggle visibility for ${item.name}`}
-                              />
-                              <span className="text-xs text-muted-foreground">
-                                {item.is_visible ? 'Visible' : 'Hidden'}
-                              </span>
-                            </div>
-                          </div>
+                        </TableCell>
+                        <TableCell className="text-center text-sm text-muted-foreground">
+                          {lastUpdatedValue ? formatVariantTimestamp(lastUpdatedValue) : '—'}
+                        </TableCell>
+                        <TableCell className="text-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="w-full rounded-[var(--radius)] border-border"
+                                className="w-full rounded-[var(--radius)] border-border sm:w-auto"
                               >
                                 Manage
                               </Button>
@@ -1541,13 +1329,221 @@ export default function AdminDashboard() {
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="grid gap-6 md:hidden">
+              {filteredItems.map((item) => {
+                const { sortedVariants, selectedVariant: activeVariant } = getVariantsForItem(item);
+                const isVariantBased = item.has_variants;
+                const displayPrice = isVariantBased
+                  ? activeVariant?.price ?? null
+                  : item.price ?? null;
+                const displayQuantity = isVariantBased
+                  ? activeVariant?.quantity ?? null
+                  : item.quantity ?? null;
+                const lastUpdatedValue = isVariantBased
+                  ? activeVariant?.last_updated ?? null
+                  : item.last_updated;
+                const skuLabel = isVariantBased
+                  ? activeVariant?.sku ?? null
+                  : item.sku ?? null;
+
+                return (
+                  <Card
+                    key={item.id}
+                    className={`flex h-full flex-col hover:shadow-lg transition-shadow ${!item.is_visible ? 'bg-muted/40' : ''}`}
+                  >
+                    <CardHeader className="space-y-2 pb-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <CardTitle className="text-lg">{item.name}</CardTitle>
+                        {item.category && (
+                          <Badge variant="secondary" className="ml-auto">
+                            {item.category}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="!mt-0 flex flex-wrap items-center gap-2">
+                        {isVariantBased && sortedVariants.length > 0 ? (
+                          <Select
+                            value={activeVariant?.id ?? sortedVariants[0].id}
+                            onValueChange={(value) => handleVariantSelect(item.id, value)}
+                            aria-label={`Select variant for ${item.name}`}
+                          >
+                            <SelectTrigger className="one-shadow h-7 min-w-[6rem] w-auto max-w-[12rem] rounded-[var(--radius)] border border-border text-xs hover:border-accent hover:bg-accent/50 hover:text-accent-foreground active:scale-[0.98] touch-manipulation">
+                              <SelectValue placeholder="Variant" />
+                            </SelectTrigger>
+                            <SelectContent className="touch-manipulation">
+                              {sortedVariants.map((variant) => (
+                                <SelectItem key={variant.id} value={variant.id} className="touch-manipulation cursor-pointer">
+                                  {VARIANT_TYPE_LABELS[variant.variant_type]
+                                    ? `${variant.variant_value} • ${VARIANT_TYPE_LABELS[variant.variant_type]}`
+                                    : variant.variant_value}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : isVariantBased ? (
+                          <Badge
+                            variant="outline"
+                            className="one-shadow text-xs font-medium rounded-[var(--radius)]"
+                          >
+                            No variants yet
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="one-shadow text-xs font-medium rounded-[var(--radius)]"
+                          >
+                            No Variant
+                          </Badge>
+                        )}
+                        {skuLabel ? (
+                          <code className="bg-muted px-2 py-1 rounded-[calc(var(--radius)*0.5)] text-xs text-muted-foreground ml-auto text-center min-w-[80px] inline-block">
+                            {skuLabel}
+                          </code>
+                        ) : (
+                          <span className="text-xs text-muted-foreground ml-auto text-center min-w-[80px] inline-block">SKU unavailable</span>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex flex-1 flex-col space-y-4 pb-4">
+                      {item.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {item.description}
+                        </p>
+                      )}
+
+                      <div className="mt-auto space-y-3 border-t border-border dark:border-[#080808] pt-2">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <p className="text-xs text-muted-foreground mb-1.5">Available Quantity</p>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={
+                                  displayQuantity !== null && displayQuantity === 0
+                                    ? 'destructive'
+                                    : 'default'
+                                }
+                                className="px-3 py-1"
+                              >
+                                {displayQuantity ?? '—'}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                onClick={() => openQuantityDialog(item, activeVariant)}
+                                title="Update quantity"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            <p className="text-xs text-muted-foreground mb-1.5">Price</p>
+                            <p className="text-base font-semibold">
+                              {displayPrice !== null ? formatCurrency(displayPrice) : '—'}
+                            </p>
+                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </>
+                        <div className="text-xs text-muted-foreground pt-2 border-t border-border/50 dark:border-[#080808]/50">
+                          <span className="inline-block">Last Updated:</span>{' '}
+                          <span className="font-medium">
+                            {lastUpdatedValue ? formatVariantTimestamp(lastUpdatedValue) : '—'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-3 border-t border-border dark:border-[#080808] pt-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Visibility</span>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              size="sm"
+                              checked={item.is_visible}
+                              onCheckedChange={(checked) => handleVisibilityToggle(item, checked)}
+                              aria-label={`Toggle visibility for ${item.name}`}
+                            />
+                            <span className="text-xs text-muted-foreground">
+                              {item.is_visible ? 'Visible' : 'Hidden'}
+                            </span>
+                          </div>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full rounded-[var(--radius)] border-border"
+                            >
+                              Manage
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuLabel>Item</DropdownMenuLabel>
+                            <DropdownMenuItem onSelect={() => handleEdit(item)}>
+                              Edit Item
+                            </DropdownMenuItem>
+                            {item.has_variants ? (
+                              <>
+                                <DropdownMenuItem onSelect={() => openVariantForm(item)}>
+                                  Add Variant
+                                </DropdownMenuItem>
+                                {sortedVariants.length > 0 && (
+                                  <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuLabel>Variants</DropdownMenuLabel>
+                                    {sortedVariants.map((variant) => (
+                                      <DropdownMenuSub key={variant.id}>
+                                        <DropdownMenuSubTrigger>
+                                          {variant.variant_value}
+                                        </DropdownMenuSubTrigger>
+                                        <DropdownMenuSubContent>
+                                          <DropdownMenuItem
+                                            onSelect={() => openVariantForm(item, variant)}
+                                          >
+                                            Edit Variant
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem
+                                            className="text-destructive focus:text-destructive"
+                                            onSelect={() => openVariantDeleteDialog(item, variant)}
+                                          >
+                                            Delete Variant
+                                          </DropdownMenuItem>
+                                        </DropdownMenuSubContent>
+                                      </DropdownMenuSub>
+                                    ))}
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <DropdownMenuItem disabled className="opacity-75 cursor-not-allowed">
+                                Enable variants from item settings
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onSelect={() => openDeleteDialog(item)}
+                            >
+                              Delete Item
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
@@ -1623,8 +1619,8 @@ export default function AdminDashboard() {
                       const query = categoryPickerSearch.trim().toLowerCase();
                       const filtered = query
                         ? availableCategories.filter((category) =>
-                            category.name.toLowerCase().includes(query)
-                          )
+                          category.name.toLowerCase().includes(query)
+                        )
                         : availableCategories;
 
                       if (filtered.length === 0) {
@@ -1651,9 +1647,8 @@ export default function AdminDashboard() {
                             >
                               <span className="flex-1 truncate text-left">{category.name}</span>
                               <Check
-                                className={`ml-2 h-4 w-4 ${
-                                  selectedCategoryId === category.id ? 'opacity-100' : 'opacity-0'
-                                }`}
+                                className={`ml-2 h-4 w-4 ${selectedCategoryId === category.id ? 'opacity-100' : 'opacity-0'
+                                  }`}
                               />
                             </button>
                           ))}
@@ -1717,7 +1712,7 @@ export default function AdminDashboard() {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete "{itemToDelete?.name}"
-              {itemToDelete?.has_variants && itemToDelete.variants.length > 0 
+              {itemToDelete?.has_variants && itemToDelete.variants.length > 0
                 ? ` and all its ${itemToDelete.variants.length} variant${itemToDelete.variants.length !== 1 ? 's' : ''}`
                 : ''
               }. This action cannot be undone.

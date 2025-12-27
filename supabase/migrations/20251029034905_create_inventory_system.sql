@@ -9,29 +9,27 @@ create table if not exists public.category (
 create table public.product (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  sku text unique,                    -- used only when has_variants = false
   description text,
   category text references public.category(name) on delete set null default null,
-  is_visible boolean not null default true,
-  has_variants boolean not null default false,     -- NEW: distinguishes variant-type vs single-type
-  price int default 0,                                       -- used only when has_variants = false
-  quantity integer default 0,                      -- used only when has_variants = false
+  is_visible boolean not null default true,    
   image_url text default null,
-  last_updated timestamp NOT NULL DEFAULT now(),      -- used only when has_variants = false
+  last_updated timestamp NOT NULL DEFAULT now(), 
   updated_by uuid REFERENCES auth.users(id)
 );
 
 -- PRODUCT VARIANTS TABLE (handles weight, pieces, flavor, etc.)
 create table public.product_variants (
   id uuid primary key default gen_random_uuid(),
-  product_id uuid references public.product(id) on delete cascade,
+  product_id uuid not null references public.product(id) on delete cascade,
   sku text not null unique,
   variant_type text check (variant_type IN ('weight', 'pcs', 'price', 'flavor', 'size')) not null,
   variant_value text not null,           -- e.g., '250g', '12pcs', 'Small Pack'
   price int not null default 0,          -- price per variant
   quantity integer not null default 0,   -- stock level
   last_updated timestamp not null default now(),
-  updated_by uuid references auth.users(id)
+  updated_by uuid references auth.users(id),
+  constraint unique_variant_per_product
+  unique (product_id, variant_type, variant_value)
 );
 
 -- ADMIN USERS TABLE
@@ -180,3 +178,76 @@ on public.store_status
 for all
 using (public.is_admin())
 with check (public.is_admin());
+
+CREATE SEQUENCE public.sku_sequence
+START 1
+INCREMENT 1
+NO MINVALUE
+NO MAXVALUE
+CACHE 1;
+CREATE OR REPLACE FUNCTION public.generate_sku()
+RETURNS text
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  next_val bigint;
+BEGIN
+  next_val := nextval('public.sku_sequence');
+  RETURN 'SF-' || lpad(next_val::text, 4, '0');
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.create_default_variant()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.product_variants (
+    product_id,
+    sku,
+    variant_type,
+    variant_value,
+    price,
+    quantity,
+    updated_by
+  )
+  VALUES (
+    NEW.id,
+    public.generate_sku(),
+    'pcs',
+    'default',
+    0,
+    0,
+    NEW.updated_by
+  );
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+CREATE TRIGGER trg_create_default_variant
+AFTER INSERT ON public.product
+FOR EACH ROW
+EXECUTE FUNCTION public.create_default_variant();
+
+CREATE OR REPLACE FUNCTION public.prevent_last_variant_delete()
+RETURNS trigger AS $$
+BEGIN
+  IF (
+    SELECT COUNT(*)
+    FROM public.product_variants
+    WHERE product_id = OLD.product_id
+  ) <= 1 THEN
+    RAISE EXCEPTION 'A product must have at least one variant';
+  END IF;
+
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_prevent_last_variant_delete
+BEFORE DELETE ON public.product_variants
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_last_variant_delete();
+
+CREATE INDEX idx_product_variants_product_id
+ON public.product_variants(product_id);

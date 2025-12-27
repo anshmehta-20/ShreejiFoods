@@ -56,7 +56,13 @@ export default function CategoryForm({
     try {
       setLoading(true);
 
-      const { error } = await supabase.from('category').insert([data]);
+      // Convert category name to lowercase
+      const categoryData = {
+        name: data.name.toLowerCase(),
+        description: data.description,
+      };
+
+      const { error } = await supabase.from('category').insert([categoryData]);
 
       if (error) throw error;
 
