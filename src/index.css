@@ -4,165 +4,165 @@
 
 @layer base {
   :root {
-  --background: 0 0% 100%;
-  --foreground: 240 6% 10%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 6% 10%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 6% 10%;
-  --primary: 44 100% 50%;
-  --primary-foreground: 240 6% 10%;
-  --secondary: 44 100% 50%;
-  --secondary-foreground: 240 6% 10%;
-  --muted: 218 40% 96%;
-  --muted-foreground: 250 3% 40%;
-  --accent: 44 100% 84%;
-  --accent-foreground: 240 6% 10%;
-  --destructive: 6 70% 50%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 240 2% 90%;
-  --input: 240 2% 90%;
-  --ring: 44 100% 50%;
-  --chart-1: 148 70% 55%;
-  --chart-2: 36 80% 65%;
-  --chart-3: 56 70% 60%;
-  --chart-4: 206 59% 70%;
-  --chart-5: 16 70% 60%;
-  --sidebar: 30 20% 98%;
-  --sidebar-foreground: 240 6% 10%;
-  --sidebar-primary: 44 100% 50%;
-  --sidebar-primary-foreground: 240 6% 10%;
-  --sidebar-accent: 44 100% 84%;
-  --sidebar-accent-foreground: 240 6% 10%;
-  --sidebar-border: 240 2% 90%;
-  --sidebar-ring: 44 100% 50%;
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Playfair Display', serif;
-  --font-mono: 'Fira Code', monospace;
-  --radius: 1.15rem;
-  --shadow-x: 0;
-  --shadow-y: 0.1rem;
-  --shadow-blur: 0.5rem;
-  --shadow-spread: 0;
-  --shadow-opacity: 0.05;
-  --shadow-color: 0 0 0;
-  --shadow-2xs: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 3%);
-  --shadow-xs: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 3%);
-  --shadow-sm: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 1px 2px -1px hsl(0 0% 0% / 5%);
-  --shadow: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 1px 2px -1px hsl(0 0% 0% / 5%);
-  --shadow-md: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 2px 4px -1px hsl(0 0% 0% / 5%);
-  --shadow-lg: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 4px 6px -1px hsl(0 0% 0% / 5%);
-  --shadow-xl: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 8px 10px -1px hsl(0 0% 0% / 5%);
-  --shadow-2xl: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 13%);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
-}
+    --background: 0 0% 100%;
+    --foreground: 240 6% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 6% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 6% 10%;
+    --primary: 44 100% 50%;
+    --primary-foreground: 240 6% 10%;
+    --secondary: 44 100% 50%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 218 40% 96%;
+    --muted-foreground: 250 3% 40%;
+    --accent: 44 100% 84%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 6 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 2% 90%;
+    --input: 240 2% 90%;
+    --ring: 44 100% 50%;
+    --chart-1: 148 70% 55%;
+    --chart-2: 36 80% 65%;
+    --chart-3: 56 70% 60%;
+    --chart-4: 206 59% 70%;
+    --chart-5: 16 70% 60%;
+    --sidebar: 30 20% 98%;
+    --sidebar-foreground: 240 6% 10%;
+    --sidebar-primary: 44 100% 50%;
+    --sidebar-primary-foreground: 240 6% 10%;
+    --sidebar-accent: 44 100% 84%;
+    --sidebar-accent-foreground: 240 6% 10%;
+    --sidebar-border: 240 2% 90%;
+    --sidebar-ring: 44 100% 50%;
+    --font-sans: 'Inter', sans-serif;
+    --font-serif: 'Playfair Display', serif;
+    --font-mono: 'Fira Code', monospace;
+    --radius: 1.15rem;
+    --shadow-x: 0;
+    --shadow-y: 0.1rem;
+    --shadow-blur: 0.5rem;
+    --shadow-spread: 0;
+    --shadow-opacity: 0.05;
+    --shadow-color: 0 0 0;
+    --shadow-2xs: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 3%);
+    --shadow-xs: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 3%);
+    --shadow-sm: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 1px 2px -1px hsl(0 0% 0% / 5%);
+    --shadow: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 1px 2px -1px hsl(0 0% 0% / 5%);
+    --shadow-md: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 2px 4px -1px hsl(0 0% 0% / 5%);
+    --shadow-lg: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 4px 6px -1px hsl(0 0% 0% / 5%);
+    --shadow-xl: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 5%), 0 8px 10px -1px hsl(0 0% 0% / 5%);
+    --shadow-2xl: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 13%);
+    --tracking-normal: 0em;
+    --spacing: 0.25rem;
+  }
 
-.dark {
-  --background: 0 0% 3%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 0%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 7%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 44 100% 50%;
-  --primary-foreground: 0 0% 3%;
-  --secondary: 44 100% 50%;
-  --secondary-foreground: 0 0% 3%;
-  --muted: 0 0% 7%;
-  --muted-foreground: 247 5% 65%;
-  --accent: 47 74% 6%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 6 70% 50%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 7%;
-  --input: 246 10% 20%;
-  --ring: 44 100% 50%;
-  --chart-1: 148 70% 55%;
-  --chart-2: 36 80% 65%;
-  --chart-3: 56 70% 60%;
-  --chart-4: 206 59% 70%;
-  --chart-5: 16 70% 60%;
-  --sidebar: 0 0% 3%;
-  --sidebar-foreground: 0 0% 98%;
-  --sidebar-primary: 44 100% 50%;
-  --sidebar-primary-foreground: 0 0% 3%;
-  --sidebar-accent: 240 6% 10%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 246 10% 20%;
-  --sidebar-ring: 44 100% 50%;
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Playfair Display', serif;
-  --font-mono: 'Fira Code', monospace;
-  --radius: 1.15rem;
-  --shadow-x: 0;
-  --shadow-y: 0.1rem;
-  --shadow-blur: 0.5rem;
-  --shadow-spread: 0;
-  --shadow-opacity: 0.3;
-  --shadow-color: 0 0 0;
-  --shadow-2xs: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 15%);
-  --shadow-xs: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 15%);
-  --shadow-sm: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 1px 2px -1px hsl(0 0% 0% / 30%);
-  --shadow: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 1px 2px -1px hsl(0 0% 0% / 30%);
-  --shadow-md: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 2px 4px -1px hsl(0 0% 0% / 30%);
-  --shadow-lg: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 4px 6px -1px hsl(0 0% 0% / 30%);
-  --shadow-xl: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 8px 10px -1px hsl(0 0% 0% / 30%);
-  --shadow-2xl: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 75%);
-}
+  .dark {
+    --background: 0 0% 3%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 44 100% 50%;
+    --primary-foreground: 0 0% 3%;
+    --secondary: 44 100% 50%;
+    --secondary-foreground: 0 0% 3%;
+    --muted: 0 0% 7%;
+    --muted-foreground: 247 5% 65%;
+    --accent: 47 74% 6%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 6 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 7%;
+    --input: 246 10% 20%;
+    --ring: 44 100% 50%;
+    --chart-1: 148 70% 55%;
+    --chart-2: 36 80% 65%;
+    --chart-3: 56 70% 60%;
+    --chart-4: 206 59% 70%;
+    --chart-5: 16 70% 60%;
+    --sidebar: 0 0% 3%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 44 100% 50%;
+    --sidebar-primary-foreground: 0 0% 3%;
+    --sidebar-accent: 240 6% 10%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 246 10% 20%;
+    --sidebar-ring: 44 100% 50%;
+    --font-sans: 'Inter', sans-serif;
+    --font-serif: 'Playfair Display', serif;
+    --font-mono: 'Fira Code', monospace;
+    --radius: 1.15rem;
+    --shadow-x: 0;
+    --shadow-y: 0.1rem;
+    --shadow-blur: 0.5rem;
+    --shadow-spread: 0;
+    --shadow-opacity: 0.3;
+    --shadow-color: 0 0 0;
+    --shadow-2xs: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 15%);
+    --shadow-xs: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 15%);
+    --shadow-sm: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 1px 2px -1px hsl(0 0% 0% / 30%);
+    --shadow: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 1px 2px -1px hsl(0 0% 0% / 30%);
+    --shadow-md: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 2px 4px -1px hsl(0 0% 0% / 30%);
+    --shadow-lg: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 4px 6px -1px hsl(0 0% 0% / 30%);
+    --shadow-xl: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 30%), 0 8px 10px -1px hsl(0 0% 0% / 30%);
+    --shadow-2xl: 0 0.1rem 0.5rem 0 hsl(0 0% 0% / 75%);
+  }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  @theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-serif: var(--font-serif);
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+    --font-serif: var(--font-serif);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
 
-  --shadow-2xs: var(--shadow-2xs);
-  --shadow-xs: var(--shadow-xs);
-  --shadow-sm: var(--shadow-sm);
-  --shadow: var(--shadow);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-  --shadow-xl: var(--shadow-xl);
-  --shadow-2xl: var(--shadow-2xl);
-}
+    --shadow-2xs: var(--shadow-2xs);
+    --shadow-xs: var(--shadow-xs);
+    --shadow-sm: var(--shadow-sm);
+    --shadow: var(--shadow);
+    --shadow-md: var(--shadow-md);
+    --shadow-lg: var(--shadow-lg);
+    --shadow-xl: var(--shadow-xl);
+    --shadow-2xl: var(--shadow-2xl);
+  }
 
 
   * {
@@ -218,12 +218,12 @@
 
 @layer components {
   .one-shadow {
-    box-shadow: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
-      hsl(var(--shadow-color) / var(--shadow-opacity)) !important;
+    box-shadow: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread) hsl(var(--shadow-color) / var(--shadow-opacity)) !important;
   }
 }
 
 @layer utilities {
+
   /* Smooth animation utilities */
   .animate-smooth {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -258,6 +258,7 @@
 
   /* Respect user's motion preferences while keeping smooth animations */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -277,69 +278,94 @@
 }
 
 /* Custom animations for 3D doodle text */
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
   }
 
-  @keyframes wiggle {
-    0%, 100% {
-      transform: rotate(-1deg);
-    }
-    50% {
-      transform: rotate(1deg);
-    }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes wiggle {
+
+  0%,
+  100% {
+    transform: rotate(-1deg);
   }
 
-  @keyframes draw {
-    0% {
-      stroke-dashoffset: 1000;
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      stroke-dashoffset: 0;
-      opacity: 1;
-    }
+  50% {
+    transform: rotate(1deg);
   }
+}
 
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .animate-wiggle {
-    animation: wiggle 2s ease-in-out infinite;
-  }
-
-  .animate-draw {
-    stroke-dasharray: 1000;
+@keyframes draw {
+  0% {
     stroke-dashoffset: 1000;
-    animation: draw 2s ease-in-out forwards;
+    opacity: 0;
   }
 
-  .delay-75 {
-    animation-delay: 75ms;
+  50% {
+    opacity: 1;
   }
 
-  /* Breathing light effect for store status */
-  @keyframes breathe {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.4;
-      transform: scale(0.95);
-    }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+.animate-draw {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw 2s ease-in-out forwards;
+}
+
+.delay-75 {
+  animation-delay: 75ms;
+}
+
+/* Breathing light effect for store status */
+@keyframes breathe {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 
-  .animate-breathe {
-    animation: breathe 2s ease-in-out infinite;
+  50% {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+}
+
+.animate-breathe {
+  animation: breathe 2s ease-in-out infinite;
+}
+
+/* Remove spinner arrows from number inputs */
+@layer base {
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
