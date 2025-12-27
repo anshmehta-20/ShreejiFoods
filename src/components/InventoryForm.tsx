@@ -110,11 +110,7 @@ export default function InventoryForm({
         description: item.description ?? '',
         category: item.category ?? null,
         is_visible: item.is_visible,
-        has_variants: item.has_variants,
         image_url: item.image_url ?? '',
-        sku: item.sku ?? '',
-        price: item.price ?? 0,
-        quantity: item.quantity ?? 0,
       });
     } else {
       form.reset({
@@ -122,11 +118,7 @@ export default function InventoryForm({
         description: '',
         category: null,
         is_visible: true,
-        has_variants: false,
         image_url: '',
-        sku: '',
-        price: 0,
-        quantity: 0,
       });
     }
   }, [item, form]);

@@ -1431,12 +1431,10 @@ export default function AdminDashboard() {
                             <DropdownMenuItem onSelect={() => handleEdit(item)}>
                               Edit Item
                             </DropdownMenuItem>
-                            {item.has_variants ? (
-                              <>
-                                <DropdownMenuItem onSelect={() => openVariantForm(item)}>
-                                  Add Variant
-                                </DropdownMenuItem>
-                                {sortedVariants.length > 0 && (
+                            <DropdownMenuItem onSelect={() => openVariantForm(item)}>
+                              Add Variant
+                            </DropdownMenuItem>
+                            {sortedVariants.length > 0 && (
                                   <>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuLabel>Variants</DropdownMenuLabel>
@@ -1652,7 +1650,7 @@ export default function AdminDashboard() {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete "{itemToDelete?.name}"
-              {itemToDelete?.has_variants && itemToDelete.variants.length > 0
+              {itemToDelete && itemToDelete.variants.length > 0
                 ? ` and all its ${itemToDelete.variants.length} variant${itemToDelete.variants.length !== 1 ? 's' : ''}`
                 : ''
               }. This action cannot be undone.
@@ -1736,6 +1734,6 @@ export default function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }
