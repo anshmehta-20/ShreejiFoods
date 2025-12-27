@@ -232,6 +232,16 @@ EXECUTE FUNCTION public.create_default_variant();
 CREATE OR REPLACE FUNCTION public.prevent_last_variant_delete()
 RETURNS trigger AS $$
 BEGIN
+  -- Allow delete if parent product is being deleted
+  IF EXISTS (
+    SELECT 1
+    FROM public.product
+    WHERE id = OLD.product_id
+  ) = FALSE THEN
+    RETURN OLD;
+  END IF;
+
+  -- Otherwise, block deleting the last variant
   IF (
     SELECT COUNT(*)
     FROM public.product_variants
@@ -243,6 +253,7 @@ BEGIN
   RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE TRIGGER trg_prevent_last_variant_delete
 BEFORE DELETE ON public.product_variants

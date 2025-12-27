@@ -354,18 +354,3 @@
 .animate-breathe {
   animation: breathe 2s ease-in-out infinite;
 }
-
-/* Remove spinner arrows from number inputs */
-@layer base {
-
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input[type="number"] {
-    -moz-appearance: textfield;
-    appearance: textfield;
-  }
-}
