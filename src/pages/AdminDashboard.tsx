@@ -1435,36 +1435,30 @@ export default function AdminDashboard() {
                               Add Variant
                             </DropdownMenuItem>
                             {sortedVariants.length > 0 && (
-                                  <>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuLabel>Variants</DropdownMenuLabel>
-                                    {sortedVariants.map((variant) => (
-                                      <DropdownMenuSub key={variant.id}>
-                                        <DropdownMenuSubTrigger>
-                                          {variant.variant_value}
-                                        </DropdownMenuSubTrigger>
-                                        <DropdownMenuSubContent>
-                                          <DropdownMenuItem
-                                            onSelect={() => openVariantForm(item, variant)}
-                                          >
-                                            Edit Variant
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem
-                                            className="text-destructive focus:text-destructive"
-                                            onSelect={() => openVariantDeleteDialog(item, variant)}
-                                          >
-                                            Delete Variant
-                                          </DropdownMenuItem>
-                                        </DropdownMenuSubContent>
-                                      </DropdownMenuSub>
-                                    ))}
-                                  </>
-                                )}
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel>Variants</DropdownMenuLabel>
+                                {sortedVariants.map((variant) => (
+                                  <DropdownMenuSub key={variant.id}>
+                                    <DropdownMenuSubTrigger>
+                                      {variant.variant_value}
+                                    </DropdownMenuSubTrigger>
+                                    <DropdownMenuSubContent>
+                                      <DropdownMenuItem
+                                        onSelect={() => openVariantForm(item, variant)}
+                                      >
+                                        Edit Variant
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        className="text-destructive focus:text-destructive"
+                                        onSelect={() => openVariantDeleteDialog(item, variant)}
+                                      >
+                                        Delete Variant
+                                      </DropdownMenuItem>
+                                    </DropdownMenuSubContent>
+                                  </DropdownMenuSub>
+                                ))}
                               </>
-                            ) : (
-                              <DropdownMenuItem disabled className="opacity-75 cursor-not-allowed">
-                                Enable variants from item settings
-                              </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
