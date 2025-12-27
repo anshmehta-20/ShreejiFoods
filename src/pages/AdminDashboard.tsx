@@ -728,8 +728,8 @@ export default function AdminDashboard() {
 
   const openQuantityDialog = (item: Product, variant: ProductVariant | null) => {
     setQuantityEditItem({ item, variant });
-    const currentQuantity = variant ? variant.quantity : item.quantity;
-    setNewQuantity(currentQuantity?.toString() ?? '0');
+    const currentQuantity = variant?.quantity ?? 0;
+    setNewQuantity(currentQuantity.toString());
     setQuantityDialogOpen(true);
   };
 

@@ -38,16 +38,16 @@ const parseNumericValue = (value: string): number | null => {
 const parseWeightInGrams = (value: string): number | null => {
   const lowerValue = value.toLowerCase();
   const numMatch = lowerValue.match(/(\d+(?:\.\d+)?)/);
-  
+
   if (!numMatch) {
     return null;
   }
-  
+
   const num = Number.parseFloat(numMatch[1]);
   if (Number.isNaN(num)) {
     return null;
   }
-  
+
   if (lowerValue.includes('kg')) {
     return num * 1000;
   } else if (lowerValue.includes('g') && !lowerValue.includes('kg')) {
@@ -59,17 +59,17 @@ const parseWeightInGrams = (value: string): number | null => {
   } else if (lowerValue.includes('oz') || lowerValue.includes('ounce')) {
     return num * 28.3495;
   }
-  
+
   return num;
 };
 
 const sortVariants = (variants: ProductVariant[]) => {
   return [...variants].sort((a, b) => {
     const isWeightVariant = a.variant_type === 'weight' || b.variant_type === 'weight';
-    
+
     let aValue: number | null;
     let bValue: number | null;
-    
+
     if (isWeightVariant) {
       aValue = parseWeightInGrams(a.variant_value);
       bValue = parseWeightInGrams(b.variant_value);
@@ -113,21 +113,15 @@ export default function ProductDetailDialog({
 
   if (!item) return null;
 
-  const sortedVariants = item.has_variants ? sortVariants(item.variants) : [];
+  const sortedVariants = sortVariants(item.variants);
   const defaultVariant = sortedVariants[0] || null;
   const activeVariant = selectedVariantId
     ? sortedVariants.find((v) => v.id === selectedVariantId) || defaultVariant
     : defaultVariant;
 
-  const displayPrice = item.has_variants
-    ? activeVariant?.price ?? null
-    : item.price ?? null;
-  const displayQuantity = item.has_variants
-    ? activeVariant?.quantity ?? null
-    : item.quantity ?? null;
-  const displaySKU = item.has_variants
-    ? activeVariant?.sku ?? null
-    : item.sku ?? null;
+  const displayPrice = activeVariant?.price ?? null;
+  const displayQuantity = activeVariant?.quantity ?? null;
+  const displaySKU = activeVariant?.sku ?? null;
 
   const formatCurrency = (value: number | null | undefined) =>
     new Intl.NumberFormat('en-IN', {
@@ -209,7 +203,7 @@ export default function ProductDetailDialog({
             )}
 
             {/* Variants */}
-            {item.has_variants && sortedVariants.length > 0 && (
+            {sortedVariants.length > 0 && (
               <div className="relative">
                 <h3 className="text-xs font-bold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
                   <span className="w-1 h-4 bg-gradient-to-b from-primary to-primary/50 rounded-full"></span>
@@ -274,8 +268,8 @@ export default function ProductDetailDialog({
                         displayQuantity !== null && displayQuantity === 0
                           ? 'destructive'
                           : displayQuantity !== null && displayQuantity > 0
-                          ? 'default'
-                          : 'outline'
+                            ? 'default'
+                            : 'outline'
                       }
                       className="text-sm px-4 py-1.5 font-semibold shadow-sm"
                     >
@@ -297,7 +291,7 @@ export default function ProductDetailDialog({
                 <span className="w-2 h-2 rounded-full bg-primary/50 animate-breathe"></span>
                 <span>Last Updated: </span>
                 <span className="font-semibold text-foreground/80">
-                  {item.has_variants && activeVariant
+                  {activeVariant
                     ? formatTimestamp(activeVariant.last_updated)
                     : formatTimestamp(item.last_updated)}
                 </span>

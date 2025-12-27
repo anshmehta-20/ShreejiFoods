@@ -30,16 +30,16 @@ const parseNumericValue = (value: string): number | null => {
 const parseWeightInGrams = (value: string): number | null => {
   const lowerValue = value.toLowerCase();
   const numMatch = lowerValue.match(/(\d+(?:\.\d+)?)/);
-  
+
   if (!numMatch) {
     return null;
   }
-  
+
   const num = Number.parseFloat(numMatch[1]);
   if (Number.isNaN(num)) {
     return null;
   }
-  
+
   // Convert to grams based on unit
   if (lowerValue.includes('kg')) {
     return num * 1000; // kg to grams
@@ -52,7 +52,7 @@ const parseWeightInGrams = (value: string): number | null => {
   } else if (lowerValue.includes('oz') || lowerValue.includes('ounce')) {
     return num * 28.3495; // ounces to grams
   }
-  
+
   // If no unit found, treat as the raw number
   return num;
 };
@@ -61,10 +61,10 @@ const sortVariants = (variants: ProductVariant[]) => {
   return [...variants].sort((a, b) => {
     // Check if this is a weight-based variant
     const isWeightVariant = a.variant_type === 'weight' || b.variant_type === 'weight';
-    
+
     let aValue: number | null;
     let bValue: number | null;
-    
+
     if (isWeightVariant) {
       // Use weight-aware parsing for weight variants
       aValue = parseWeightInGrams(a.variant_value);
@@ -268,19 +268,7 @@ export default function UserDashboard() {
             );
           });
 
-          const priceMatches =
-            item.price !== null && item.price !== undefined &&
-            item.price.toString().includes(query);
-
-          const quantityMatches =
-            item.quantity !== null && item.quantity !== undefined &&
-            item.quantity.toString().includes(query);
-
-          const matchesSinglePrice = !item.has_variants ? priceMatches || quantityMatches : false;
-
-          const matchesSku = item.sku ? item.sku.toLowerCase().includes(query) : false;
-
-          return matchesItem || matchesVariant || matchesSinglePrice || matchesSku;
+          return matchesItem || matchesVariant;
         })
       );
     }
@@ -328,7 +316,7 @@ export default function UserDashboard() {
       const { data, error } = await supabase
         .from('product')
         .select(
-          'id, name, description, category, is_visible, has_variants, price, quantity, sku, image_url, last_updated, updated_by, product_variants(*)'
+          'id, name, description, category, is_visible, image_url, last_updated, updated_by, product_variants(*)'
         )
         .order('name', { ascending: true })
         .order('variant_value', { referencedTable: 'product_variants', ascending: true });
@@ -359,10 +347,6 @@ export default function UserDashboard() {
   };
 
   const getVariantsForItem = (item: Product) => {
-    if (!item.has_variants) {
-      return { sortedVariants: [], selectedVariant: null };
-    }
-
     const sortedVariants = sortVariants(item.variants);
     const currentId = selectedVariants[item.id];
     const selectedVariant =
@@ -400,7 +384,7 @@ export default function UserDashboard() {
         <div className="absolute top-20 right-10 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-rose-500/5 rounded-full blur-3xl" />
       </div>
-      
+
       <Header />
 
       <div className="container mx-auto px-4 py-8 relative z-10">
@@ -408,31 +392,28 @@ export default function UserDashboard() {
         <div className="grid gap-6 md:grid-cols-3 mb-8">
           {/* Store Status Card */}
           <div
-            className={`group relative rounded-[var(--radius)] border p-6 text-card-foreground transition-all duration-500 backdrop-blur-sm overflow-hidden ${
-              storeStatus === null || storeStatusLoading
+            className={`group relative rounded-[var(--radius)] border p-6 text-card-foreground transition-all duration-500 backdrop-blur-sm overflow-hidden ${storeStatus === null || storeStatusLoading
                 ? 'bg-card/80 border-border shadow-lg hover:shadow-xl'
                 : storeStatus
-                ? 'bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 border-emerald-400/75 shadow-[0_0_48px_rgba(16,185,129,0.3)] hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]'
-                : 'bg-gradient-to-br from-destructive/15 to-destructive/5 border-destructive/75 shadow-[0_0_48px_rgba(239,68,68,0.3)] hover:shadow-[0_0_60px_rgba(239,68,68,0.4)]'
-            }`}
+                  ? 'bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 border-emerald-400/75 shadow-[0_0_48px_rgba(16,185,129,0.3)] hover:shadow-[0_0_60px_rgba(16,185,129,0.4)]'
+                  : 'bg-gradient-to-br from-destructive/15 to-destructive/5 border-destructive/75 shadow-[0_0_48px_rgba(239,68,68,0.3)] hover:shadow-[0_0_60px_rgba(239,68,68,0.4)]'
+              }`}
           >
             {/* Animated background gradient */}
-            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-              storeStatus ? 'bg-gradient-to-tr from-emerald-500/10 to-transparent' : 'bg-gradient-to-tr from-destructive/10 to-transparent'
-            }`} />
-            
+            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${storeStatus ? 'bg-gradient-to-tr from-emerald-500/10 to-transparent' : 'bg-gradient-to-tr from-destructive/10 to-transparent'
+              }`} />
+
             <div className="flex flex-col space-y-3 relative z-10">
               <CardDescription className="text-sm font-medium">Store Status</CardDescription>
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <span
-                    className={`block h-4 w-4 rounded-full shadow-[0_0_16px_currentColor] transition-all duration-300 group-hover:scale-110 ${
-                      storeStatus === null || storeStatusLoading
+                    className={`block h-4 w-4 rounded-full shadow-[0_0_16px_currentColor] transition-all duration-300 group-hover:scale-110 ${storeStatus === null || storeStatusLoading
                         ? 'bg-muted-foreground/40 text-muted-foreground/40'
                         : storeStatus
-                        ? 'bg-emerald-400 text-emerald-400 animate-pulse'
-                        : 'bg-destructive text-destructive animate-pulse'
-                    }`}
+                          ? 'bg-emerald-400 text-emerald-400 animate-pulse'
+                          : 'bg-destructive text-destructive animate-pulse'
+                      }`}
                     aria-hidden="true"
                   />
                   {storeStatus && (
@@ -443,13 +424,13 @@ export default function UserDashboard() {
                   {storeStatus === null || storeStatusLoading
                     ? '—'
                     : storeStatus
-                    ? 'Open'
-                    : 'Closed'}
+                      ? 'Open'
+                      : 'Closed'}
                 </CardTitle>
               </div>
             </div>
           </div>
-          
+
           {/* Total Items Card */}
           <Card className="group relative overflow-hidden border-2 hover:border-amber-500/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -464,7 +445,7 @@ export default function UserDashboard() {
               <div className="h-1 w-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full mt-2" />
             </CardHeader>
           </Card>
-          
+
           {/* Categories Card */}
           <Card className="group relative overflow-hidden border-2 hover:border-rose-500/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm">
             <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -531,8 +512,8 @@ export default function UserDashboard() {
                 {searchQuery ? 'No Results Found' : 'No Items Available'}
               </h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                {searchQuery 
-                  ? 'Try adjusting your search terms or filters' 
+                {searchQuery
+                  ? 'Try adjusting your search terms or filters'
                   : 'There are currently no items in the inventory'}
               </p>
             </CardContent>
@@ -541,16 +522,9 @@ export default function UserDashboard() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredItems.map((item) => {
               const { sortedVariants, selectedVariant } = getVariantsForItem(item);
-              const isVariantBased = item.has_variants;
-              const priceToDisplay = isVariantBased
-                ? selectedVariant?.price ?? null
-                : item.price ?? null;
-              const quantityToDisplay = isVariantBased
-                ? selectedVariant?.quantity ?? null
-                : item.quantity ?? null;
-              const lastUpdatedDisplay = isVariantBased
-                ? selectedVariant?.last_updated ?? null
-                : item.last_updated ?? null;
+              const priceToDisplay = selectedVariant?.price ?? null;
+              const quantityToDisplay = selectedVariant?.quantity ?? null;
+              const lastUpdatedDisplay = selectedVariant?.last_updated ?? null;
 
               return (
                 <Card
@@ -563,12 +537,12 @@ export default function UserDashboard() {
                 >
                   {/* Hover Gradient Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
+
                   {/* Image Section */}
                   {item.image_url && (
                     <div className="relative h-48 overflow-hidden bg-gradient-to-br from-muted/30 to-muted/10">
-                      <img 
-                        src={item.image_url} 
+                      <img
+                        src={item.image_url}
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
@@ -580,7 +554,7 @@ export default function UserDashboard() {
                       )}
                     </div>
                   )}
-                  
+
                   <CardHeader className="space-y-3 pb-4 relative z-10">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <CardTitle className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text group-hover:from-primary group-hover:to-primary/80 transition-all duration-300">
@@ -593,7 +567,7 @@ export default function UserDashboard() {
                       )}
                     </div>
                     <div className="!mt-0 flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                      {isVariantBased && sortedVariants.length > 0 ? (
+                      {sortedVariants.length > 0 ? (
                         <Select
                           value={selectedVariant?.id ?? sortedVariants[0].id}
                           onValueChange={(value) => handleVariantSelect(item.id, value)}
@@ -612,19 +586,12 @@ export default function UserDashboard() {
                             ))}
                           </SelectContent>
                         </Select>
-                      ) : isVariantBased ? (
-                        <Badge
-                          variant="outline"
-                          className="one-shadow text-xs font-medium rounded-[var(--radius)]"
-                        >
-                          No variants yet
-                        </Badge>
                       ) : (
                         <Badge
                           variant="outline"
                           className="one-shadow text-xs font-medium rounded-[var(--radius)]"
                         >
-                          No Variant
+                          No variants yet
                         </Badge>
                       )}
                     </div>
@@ -659,7 +626,7 @@ export default function UserDashboard() {
                           </p>
                         </div>
                       </div>
-                      
+
                       {/* Last Updated Section */}
                       <div className="text-xs text-muted-foreground pt-3 border-t border-border/50 dark:border-[#080808]/50 flex items-center gap-2">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -671,7 +638,7 @@ export default function UserDashboard() {
                             : 'Never updated'}
                         </span>
                       </div>
-                      
+
                       {/* Click Indicator */}
                       <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="flex items-center gap-1 text-xs text-primary font-medium">
