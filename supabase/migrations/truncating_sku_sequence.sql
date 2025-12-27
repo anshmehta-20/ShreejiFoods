@@ -1,0 +1,2 @@
+TRUNCATE TABLE public.product_variants RESTART IDENTITY CASCADE;
+ALTER SEQUENCE public.sku_sequence RESTART WITH 1;

@@ -18,12 +18,8 @@ export interface Profile {
 export interface Product {
   id: string;
   name: string;
-  sku: string | null;
   description: string | null;
   category: string | null;
-  has_variants: boolean;
-  price: number | null;
-  quantity: number | null;
   is_visible: boolean;
   image_url: string | null;
   last_updated: string | null;

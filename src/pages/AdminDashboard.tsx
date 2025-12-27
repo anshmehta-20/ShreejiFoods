@@ -54,7 +54,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Package, Search, MoreVertical, CircleMinus, RefreshCw, Check, ChevronDown, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
-import InventoryForm from '@/components/InventoryForm';
+import ProductForm from '@/components/ProductForm';
 import CategoryForm from '@/components/CategoryForm';
 import VariantForm from '@/components/VariantForm';
 
@@ -308,10 +308,6 @@ export default function AdminDashboard() {
   };
 
   const getVariantsForItem = (item: Product) => {
-    if (!item.has_variants) {
-      return { sortedVariants: [], selectedVariant: null };
-    }
-
     const sortedVariants = sortVariants(item.variants);
     const currentId = selectedVariantsMap[item.id];
     const selectedVariant =
@@ -490,19 +486,7 @@ export default function AdminDashboard() {
             );
           });
 
-          const priceMatches =
-            item.price !== null && item.price !== undefined &&
-            item.price.toString().includes(query);
-
-          const quantityMatches =
-            item.quantity !== null && item.quantity !== undefined &&
-            item.quantity.toString().includes(query);
-
-          const matchesSinglePrice = !item.has_variants ? priceMatches || quantityMatches : false;
-
-          const matchesSku = item.sku ? item.sku.toLowerCase().includes(query) : false;
-
-          return matchesItem || matchesVariant || matchesSinglePrice || matchesSku;
+          return matchesItem || matchesVariant;
         })
       );
     }
@@ -522,13 +506,6 @@ export default function AdminDashboard() {
       });
 
       items.forEach((item) => {
-        if (!item.has_variants) {
-          if (next[item.id]) {
-            delete next[item.id];
-            hasChanges = true;
-          }
-          return;
-        }
 
         const sorted = sortVariants(item.variants);
 
@@ -646,7 +623,7 @@ export default function AdminDashboard() {
       const { data, error } = await supabase
         .from('product')
         .select(
-          'id, name, description, category, is_visible, has_variants, price, quantity, sku, image_url, last_updated, updated_by, product_variants(*)'
+          'id, name, description, category, is_visible, image_url, last_updated, updated_by, product_variants(*)'
         )
         .order('name', { ascending: true })
         .order('variant_value', { referencedTable: 'product_variants', ascending: true });
@@ -826,11 +803,23 @@ export default function AdminDashboard() {
         .delete()
         .eq('id', variantToDelete.id);
 
-      if (error) throw error;
+      if (error) {
+        // Check if this is the "cannot delete last variant" error
+        if (error.message?.includes('A product must have at least one variant')) {
+          toast({
+            variant: 'destructive',
+            title: 'Cannot delete last variant',
+            description: 'A product must have at least one variant. Add another variant before deleting this one.',
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
 
       toast({
-        title: 'Variant removed',
-        description: 'Variant deleted successfully',
+        title: 'Variant deleted',
+        description: `Removed variant from "${variantParentItemName}".`,
       });
       await fetchItems();
       setVariantDeleteDialogOpen(false);
@@ -840,8 +829,12 @@ export default function AdminDashboard() {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: error.message || 'Failed to delete variant',
+        description: error.message || 'Failed to delete variant.',
       });
+    } finally {
+      setVariantDeleteDialogOpen(false);
+      setVariantToDelete(null);
+      setVariantParentItemName('');
     }
   };
 
@@ -908,10 +901,7 @@ export default function AdminDashboard() {
   const totalQuantity = useMemo(
     () =>
       items.reduce((sum, item) => {
-        if (!item.has_variants) {
-          return sum + (item.quantity ?? 0);
-        }
-
+        // All products have variants now
         const variants = Array.isArray(item.variants) ? item.variants : [];
         const variantTotal = variants.reduce(
           (variantSum: number, variant: ProductVariant) => variantSum + variant.quantity,
@@ -1110,22 +1100,14 @@ export default function AdminDashboard() {
                 <TableBody>
                   {filteredItems.map((item) => {
                     const { sortedVariants, selectedVariant: activeVariant } = getVariantsForItem(item);
-                    const displayPrice = item.has_variants
-                      ? activeVariant?.price ?? null
-                      : item.price ?? null;
-                    const displayQuantity = item.has_variants
-                      ? activeVariant?.quantity ?? null
-                      : item.quantity ?? null;
-                    const lastUpdatedValue = item.has_variants
-                      ? activeVariant?.last_updated ?? null
-                      : item.last_updated;
-                    const skuLabel = item.has_variants
-                      ? activeVariant?.sku ?? null
-                      : item.sku ?? null;
-                    const variantMeta =
-                      item.has_variants && activeVariant
-                        ? `${activeVariant.variant_value} • ${VARIANT_TYPE_LABELS[activeVariant.variant_type]}`
-                        : null;
+                    // All products have variants now
+                    const displayPrice = activeVariant?.price ?? null;
+                    const displayQuantity = activeVariant?.quantity ?? null;
+                    const lastUpdatedValue = activeVariant?.last_updated ?? null;
+                    const skuLabel = activeVariant?.sku ?? null;
+                    const variantMeta = activeVariant
+                      ? `${activeVariant.variant_value} • ${VARIANT_TYPE_LABELS[activeVariant.variant_type]}`
+                      : null;
 
                     return (
                       <TableRow
@@ -1138,44 +1120,35 @@ export default function AdminDashboard() {
                               <span className="font-medium">{item.name}</span>
                             </div>
                             <div className="flex flex-wrap items-center gap-2">
-                              {item.has_variants ? (
-                                sortedVariants.length > 0 ? (
-                                  <Select
-                                    value={activeVariant?.id ?? sortedVariants[0].id}
-                                    onValueChange={(value) => handleVariantSelect(item.id, value)}
-                                    aria-label={`Select variant for ${item.name}`}
-                                  >
-                                    <SelectTrigger className="one-shadow h-7 min-w-[6rem] w-auto max-w-[10rem] rounded-[var(--radius)] border border-border text-xs hover:border-accent hover:bg-accent/50 hover:text-accent-foreground active:scale-[0.98] touch-manipulation">
-                                      <SelectValue placeholder="Variant" />
-                                    </SelectTrigger>
-                                    <SelectContent className="touch-manipulation">
-                                      {sortedVariants.map((variant) => {
-                                        const variantLabel = VARIANT_TYPE_LABELS[variant.variant_type]
-                                          ? `${variant.variant_value} • ${VARIANT_TYPE_LABELS[variant.variant_type]}`
-                                          : variant.variant_value;
+                              {sortedVariants.length > 0 ? (
+                                <Select
+                                  value={activeVariant?.id ?? sortedVariants[0].id}
+                                  onValueChange={(value) => handleVariantSelect(item.id, value)}
+                                  aria-label={`Select variant for ${item.name}`}
+                                >
+                                  <SelectTrigger className="one-shadow h-7 min-w-[6rem] w-auto max-w-[10rem] rounded-[var(--radius)] border border-border text-xs hover:border-accent hover:bg-accent/50 hover:text-accent-foreground active:scale-[0.98] touch-manipulation">
+                                    <SelectValue placeholder="Variant" />
+                                  </SelectTrigger>
+                                  <SelectContent className="touch-manipulation">
+                                    {sortedVariants.map((variant) => {
+                                      const variantLabel = VARIANT_TYPE_LABELS[variant.variant_type]
+                                        ? `${variant.variant_value} • ${VARIANT_TYPE_LABELS[variant.variant_type]}`
+                                        : variant.variant_value;
 
-                                        return (
-                                          <SelectItem key={variant.id} value={variant.id} className="touch-manipulation cursor-pointer">
-                                            {variantLabel}
-                                          </SelectItem>
-                                        );
-                                      })}
-                                    </SelectContent>
-                                  </Select>
-                                ) : (
-                                  <Badge
-                                    variant="outline"
-                                    className="one-shadow text-xs font-medium rounded-[var(--radius)]"
-                                  >
-                                    No variants yet
-                                  </Badge>
-                                )
+                                      return (
+                                        <SelectItem key={variant.id} value={variant.id} className="touch-manipulation cursor-pointer">
+                                          {variantLabel}
+                                        </SelectItem>
+                                      );
+                                    })}
+                                  </SelectContent>
+                                </Select>
                               ) : (
                                 <Badge
                                   variant="outline"
                                   className="one-shadow text-xs font-medium rounded-[var(--radius)]"
                                 >
-                                  No Variant
+                                  No variants yet
                                 </Badge>
                               )}
                             </div>
@@ -1194,34 +1167,24 @@ export default function AdminDashboard() {
                           )}
                         </TableCell>
                         <TableCell className="text-center">
-                          {item.has_variants ? (
-                            sortedVariants.length > 0 && activeVariant ? (
-                              <div className="space-y-1">
-                                {skuLabel ? (
-                                  <code className="text-xs bg-muted px-2 py-1 rounded">{skuLabel}</code>
-                                ) : (
-                                  <span className="text-sm text-muted-foreground">No SKU</span>
-                                )}
-                                {variantMeta && (
-                                  <span className="block text-xs text-muted-foreground">{variantMeta}</span>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground text-sm">No variants yet</span>
-                            )
-                          ) : (
+                          {sortedVariants.length > 0 && activeVariant ? (
                             <div className="space-y-1">
                               {skuLabel ? (
                                 <code className="text-xs bg-muted px-2 py-1 rounded">{skuLabel}</code>
                               ) : (
-                                <span className="text-sm text-muted-foreground">SKU not set</span>
+                                <span className="text-sm text-muted-foreground">No SKU</span>
+                              )}
+                              {variantMeta && (
+                                <span className="block text-xs text-muted-foreground">{variantMeta}</span>
                               )}
                             </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">No variants yet</span>
                           )}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge variant="outline">
-                            {item.has_variants ? sortedVariants.length : '—'}
+                            {sortedVariants.length}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-center">
@@ -1283,42 +1246,34 @@ export default function AdminDashboard() {
                               <DropdownMenuItem onSelect={() => handleEdit(item)}>
                                 Edit Item
                               </DropdownMenuItem>
-                              {item.has_variants ? (
+                              <DropdownMenuItem onSelect={() => openVariantForm(item)}>
+                                Add Variant
+                              </DropdownMenuItem>
+                              {sortedVariants.length > 0 && (
                                 <>
-                                  <DropdownMenuItem onSelect={() => openVariantForm(item)}>
-                                    Add Variant
-                                  </DropdownMenuItem>
-                                  {sortedVariants.length > 0 && (
-                                    <>
-                                      <DropdownMenuSeparator />
-                                      <DropdownMenuLabel>Variants</DropdownMenuLabel>
-                                      {sortedVariants.map((variant) => (
-                                        <DropdownMenuSub key={variant.id}>
-                                          <DropdownMenuSubTrigger>
-                                            {variant.variant_value}
-                                          </DropdownMenuSubTrigger>
-                                          <DropdownMenuSubContent>
-                                            <DropdownMenuItem
-                                              onSelect={() => openVariantForm(item, variant)}
-                                            >
-                                              Edit Variant
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                              className="text-destructive focus:text-destructive"
-                                              onSelect={() => openVariantDeleteDialog(item, variant)}
-                                            >
-                                              Delete Variant
-                                            </DropdownMenuItem>
-                                          </DropdownMenuSubContent>
-                                        </DropdownMenuSub>
-                                      ))}
-                                    </>
-                                  )}
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuLabel>Variants</DropdownMenuLabel>
+                                  {sortedVariants.map((variant) => (
+                                    <DropdownMenuSub key={variant.id}>
+                                      <DropdownMenuSubTrigger>
+                                        {variant.variant_value}
+                                      </DropdownMenuSubTrigger>
+                                      <DropdownMenuSubContent>
+                                        <DropdownMenuItem
+                                          onSelect={() => openVariantForm(item, variant)}
+                                        >
+                                          Edit Variant
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                          className="text-destructive focus:text-destructive"
+                                          onSelect={() => openVariantDeleteDialog(item, variant)}
+                                        >
+                                          Delete Variant
+                                        </DropdownMenuItem>
+                                      </DropdownMenuSubContent>
+                                    </DropdownMenuSub>
+                                  ))}
                                 </>
-                              ) : (
-                                <DropdownMenuItem disabled className="opacity-75 cursor-not-allowed">
-                                  Enable variants from item settings
-                                </DropdownMenuItem>
                               )}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
@@ -1341,19 +1296,11 @@ export default function AdminDashboard() {
             <div className="grid gap-6 md:hidden">
               {filteredItems.map((item) => {
                 const { sortedVariants, selectedVariant: activeVariant } = getVariantsForItem(item);
-                const isVariantBased = item.has_variants;
-                const displayPrice = isVariantBased
-                  ? activeVariant?.price ?? null
-                  : item.price ?? null;
-                const displayQuantity = isVariantBased
-                  ? activeVariant?.quantity ?? null
-                  : item.quantity ?? null;
-                const lastUpdatedValue = isVariantBased
-                  ? activeVariant?.last_updated ?? null
-                  : item.last_updated;
-                const skuLabel = isVariantBased
-                  ? activeVariant?.sku ?? null
-                  : item.sku ?? null;
+                // All products have variants now
+                const displayPrice = activeVariant?.price ?? null;
+                const displayQuantity = activeVariant?.quantity ?? null;
+                const lastUpdatedValue = activeVariant?.last_updated ?? null;
+                const skuLabel = activeVariant?.sku ?? null;
 
                 return (
                   <Card
@@ -1370,7 +1317,7 @@ export default function AdminDashboard() {
                         )}
                       </div>
                       <div className="!mt-0 flex flex-wrap items-center gap-2">
-                        {isVariantBased && sortedVariants.length > 0 ? (
+                        {sortedVariants.length > 0 ? (
                           <Select
                             value={activeVariant?.id ?? sortedVariants[0].id}
                             onValueChange={(value) => handleVariantSelect(item.id, value)}
@@ -1389,19 +1336,12 @@ export default function AdminDashboard() {
                               ))}
                             </SelectContent>
                           </Select>
-                        ) : isVariantBased ? (
-                          <Badge
-                            variant="outline"
-                            className="one-shadow text-xs font-medium rounded-[var(--radius)]"
-                          >
-                            No variants yet
-                          </Badge>
                         ) : (
                           <Badge
                             variant="outline"
                             className="one-shadow text-xs font-medium rounded-[var(--radius)]"
                           >
-                            No Variant
+                            No variants yet
                           </Badge>
                         )}
                         {skuLabel ? (
@@ -1547,7 +1487,7 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      <InventoryForm
+      <ProductForm
         open={formOpen}
         onOpenChange={setFormOpen}
         item={selectedItem}
